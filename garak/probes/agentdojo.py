@@ -217,7 +217,6 @@ class AgentDojoBase(Probe):
                             "user_task_id": scenario.get("user_task_id", ""),
                             "injection_task_id": inj.get("id", ""),
                             "injection_payload": payload,
-                            "tool_schemas": suite.get("tool_schemas", []),
                         }
                     )
 
