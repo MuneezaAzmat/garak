@@ -3,6 +3,7 @@
 These describe evaluators for assessing detector results.
 """
 
+from collections import defaultdict
 import json
 import logging
 from pathlib import Path
@@ -16,9 +17,9 @@ import garak.attempt
 import garak.analyze
 import garak.analyze.calibration
 import garak.analyze.detector_metrics
+import garak.analyze.hit_at_k
 from garak.analyze.bootstrap_ci import calculate_bootstrap_ci
 import garak.resources.theme
-
 
 # Minimum CI width (in percentage points) to display in output
 # CIs narrower than this provide no meaningful uncertainty information
@@ -59,166 +60,284 @@ class Evaluator:
         """
         return False  # fail everything by default
 
+    def _evaluate_one_detector(
+        self, attempts: Iterable[garak.attempt.Attempt], detector_name: str
+    ) -> dict:
+        passes = 0
+        fails = 0
+        nones = 0
+        messages = []
+
+        from dataclasses import asdict
+
+        intent_counts: dict[str, dict[str, int]] = defaultdict(
+            lambda: {"passed": 0, "total_evaluated": 0, "nones": 0}
+        )
+        # per-prompt (scoreable outputs, attack successes) to estimate hit@k
+        per_attempt_counts: List[Tuple[int, int]] = []
+        for attempt in attempts:
+            intent = attempt.intent
+            attempt_scoreable = 0
+            attempt_hits = 0
+            for idx, score in enumerate(attempt.detector_results[detector_name]):
+                if score is None:
+                    nones += 1
+                    if intent is not None:
+                        intent_counts[intent]["nones"] += 1
+                elif self.test(float(score)):
+                    passes += 1
+                    attempt_scoreable += 1
+                    if intent is not None:
+                        intent_counts[intent]["passed"] += 1
+                        intent_counts[intent]["total_evaluated"] += 1
+                else:  # if we don't pass
+                    fails += 1
+                    attempt_scoreable += 1
+                    attempt_hits += 1
+                    if intent is not None:
+                        intent_counts[intent]["total_evaluated"] += 1
+                    messages.append(
+                        attempt.outputs[idx]
+                    )  # this is an opinion about scope of detection; expects that detector_results aligns with attempt.outputs (not all_outputs)
+                    if (
+                        _config.transient.hitlogfile is None
+                        or _config.transient.hitlogfile.closed
+                    ):
+                        hitlog_mode = (
+                            "w" if _config.transient.hitlogfile is None else "a"
+                        )
+                        hitlog_filename = Path(
+                            str(_config.transient.report_filename).replace(
+                                ".report.jsonl", ".hitlog.jsonl"
+                            )
+                        )
+                        logging.info("hit log in %s", hitlog_filename)
+                        _config.transient.hitlogfile = open(
+                            hitlog_filename,
+                            hitlog_mode,
+                            buffering=1,
+                            encoding="utf-8",
+                        )
+
+                    triggers = attempt.notes.get("triggers", None)
+                    _config.transient.hitlogfile.write(
+                        json.dumps(
+                            {
+                                "goal": attempt.goal,
+                                "prompt": asdict(attempt.prompt),
+                                "output": asdict(attempt.outputs[idx]),
+                                "triggers": triggers,
+                                "score": score,
+                                "run_id": str(_config.transient.run_id),
+                                "attempt_id": str(attempt.uuid),
+                                "attempt_seq": attempt.seq,
+                                "attempt_idx": idx,
+                                "generator": f"{_config.plugins.target_type} {_config.plugins.target_name}",
+                                "probe": self.probename,
+                                "detector": detector_name,
+                                "generations_per_prompt": _config.run.generations,
+                            },
+                            ensure_ascii=False,
+                        )
+                        + "\n"  # generator,probe,prompt,trigger,result,detector,score,run id,attemptid,
+                    )
+
+            per_attempt_counts.append((attempt_scoreable, attempt_hits))
+
+        outputs_evaluated = passes + fails
+        outputs_processed = passes + fails + nones
+
+        hit_at_k_ks = getattr(_config.reporting, "hit_at_k", None)
+        hit_at_k_scores = (
+            garak.analyze.hit_at_k.estimate_hit_at_k(per_attempt_counts, hit_at_k_ks)
+            if hit_at_k_ks is not None
+            else {}
+        )
+
+        ci_lower: Optional[float] = None
+        ci_upper: Optional[float] = None
+        ci_method = getattr(_config.reporting, "confidence_interval_method")
+        min_sample_size = _config.reporting.bootstrap_min_sample_size
+        if ci_method == "bootstrap" and outputs_evaluated >= min_sample_size:
+            # Construct individual results post-hoc (order doesn't matter for bootstrap resampling)
+            binary_outcomes = [1] * fails + [0] * passes
+            try:
+                se, sp = self.detector_metrics.get_detector_se_sp(detector_name)
+                ci_result = calculate_bootstrap_ci(
+                    results=binary_outcomes, sensitivity=se, specificity=sp
+                )
+                if ci_result is not None:
+                    ci_lower, ci_upper = ci_result
+                else:
+                    logging.warning(
+                        "CI calculation returned None for %s (probe: %s, n=%d, Se=%.3f, Sp=%.3f)",
+                        detector_name,
+                        self.probename,
+                        outputs_evaluated,
+                        se,
+                        sp,
+                    )
+            except ValueError as e:
+                logging.error(
+                    "CI calculation failed for %s (probe: %s, n=%d):",
+                    detector_name,
+                    self.probename,
+                    outputs_evaluated,
+                    exc_info=e,
+                )
+        elif ci_method == "bootstrap" and outputs_evaluated > 0:
+            if hasattr(_config.system, "verbose") and _config.system.verbose > 0:
+                logging.debug(
+                    "Skipping CI calculation for %s (probe: %s): sample size n=%d < %d",
+                    detector_name,
+                    self.probename,
+                    outputs_evaluated,
+                    min_sample_size,
+                )
+
+        if _config.system.narrow_output:
+            print_func = self.print_results_narrow
+        else:
+            print_func = self.print_results_wide
+        print_func(
+            detector_name,
+            passes,
+            outputs_evaluated,
+            messages,
+            ci_lower,
+            ci_upper,
+            hit_at_k_scores,
+        )
+
+        # Build eval record
+        eval_record = {
+            "entry_type": "eval",
+            "probe": self.probename,
+            "detector": detector_name,
+            "passed": passes,
+            "fails": fails,
+            "nones": nones,
+            "total_evaluated": outputs_evaluated,
+            "total_processed": outputs_processed,
+        }
+        # per-intent pass/total counts, feeds the digest technique_intent_matrix
+        if intent_counts:
+            eval_record["intents"] = {
+                intent_key: dict(counts)
+                for intent_key, counts in sorted(intent_counts.items())
+            }
+
+        # hit@k attack success rate: per-prompt "does at least one of k tries breach?"
+        if hit_at_k_scores:
+            eval_record["hit_at_k"] = {
+                str(k): scores for k, scores in hit_at_k_scores.items()
+            }
+
+        # Add CI fields if calculation succeeded
+        if ci_lower is not None and ci_upper is not None:
+            eval_record["confidence_method"] = "bootstrap"
+            eval_record["confidence"] = _config.reporting.bootstrap_confidence_level
+            eval_record["confidence_upper"] = ci_upper / 100
+            eval_record["confidence_lower"] = ci_lower / 100
+
+        _config.transient.reportfile.write(
+            json.dumps(eval_record, ensure_ascii=False) + "\n"
+        )
+
+        eval_record.pop("entry_type")
+        eval_record.pop("probe")
+        eval_record.pop("detector")
+
+        return eval_record
+
     def evaluate(self, attempts: Iterable[garak.attempt.Attempt]) -> None:
         """evaluate feedback from detectors
 
         expects a list of attempts that correspond to one probe
         outputs results once per detector
         """
-        from dataclasses import asdict
 
         if isinstance(attempts, list) and len(attempts) == 0:
-            logging.debug(
-                "evaluators.base.Evaluator.evaluate called with 0 attempts, expected 1+"
+            logging.error(
+                "evaluators.base.Evaluator.evaluate called with list of 0 attempts, expected len 1+ or iterable"
             )
             return
 
         attempts = list(
             attempts
-        )  # disprefer this but getting detector_names from first one for the loop below is a pain
+        )  # iterable is preferred but we select them by idx later
 
-        self.probename = attempts[0].probe_classname
-        detector_names = attempts[0].detector_results.keys()
+        inference_counts = {
+            "total_evaluated": 0,
+            "nones": 0,
+        }
+        detection_counts = {
+            "detectors": set(),
+            "passed": 0,
+            "fails": 0,
+            "nones": 0,
+        }
 
-        for detector in detector_names:
-            passes = 0
-            fails = 0
-            nones = 0
-            messages = []
+        detectors_to_eval = set()
+        detector_to_attempt_ids = defaultdict(list)
+        self.probename = None  # short term clear on each call to avoid stale state, this should be refactored to avoid stored state
 
-            for attempt in attempts:
-                for idx, score in enumerate(attempt.detector_results[detector]):
-                    if score is None:
-                        nones += 1
-                    elif self.test(float(score)):
-                        passes += 1
-                    else:
-                        fails += 1
-                        messages.append(
-                            attempt.outputs[idx]
-                        )  # this is an opinion about scope of detection; expects that detector_results aligns with attempt.outputs (not all_outputs)
-                        if (
-                            _config.transient.hitlogfile is None
-                            or _config.transient.hitlogfile.closed
-                        ):
-                            hitlog_mode = (
-                                "w" if _config.transient.hitlogfile is None else "a"
-                            )
-                            hitlog_filename = Path(
-                                str(_config.transient.report_filename).replace(
-                                    ".report.jsonl", ".hitlog.jsonl"
-                                )
-                            )
-                            logging.info("hit log in %s", hitlog_filename)
-                            _config.transient.hitlogfile = open(
-                                hitlog_filename,
-                                hitlog_mode,
-                                buffering=1,
-                                encoding="utf-8",
-                            )
+        # build probe_summary during this loop to reference probe specific counts
+        # include:
+        #  total inference output counts (output_counts: sum(None), sum(not None)),
+        #  total detections performed (detection_counts: sum(None), sum(hit), sum(pass))
+        for idx, attempt in enumerate(attempts):
+            if not self.probename:
+                self.probename = attempt.probe_classname
 
-                        triggers = attempt.notes.get("triggers", None)
-                        _config.transient.hitlogfile.write(
-                            json.dumps(
-                                {
-                                    "goal": attempt.goal,
-                                    "prompt": asdict(attempt.prompt),
-                                    "output": asdict(attempt.outputs[idx]),
-                                    "triggers": triggers,
-                                    "score": score,
-                                    "run_id": str(_config.transient.run_id),
-                                    "attempt_id": str(attempt.uuid),
-                                    "attempt_seq": attempt.seq,
-                                    "attempt_idx": idx,
-                                    "generator": f"{_config.plugins.target_type} {_config.plugins.target_name}",
-                                    "probe": self.probename,
-                                    "detector": detector,
-                                    "generations_per_prompt": _config.run.generations,
-                                },
-                                ensure_ascii=False,
-                            )
-                            + "\n"  # generator,probe,prompt,trigger,result,detector,score,run id,attemptid,
-                        )
-
-            outputs_evaluated = passes + fails
-            outputs_processed = passes + fails + nones
-
-            ci_lower: Optional[float] = None
-            ci_upper: Optional[float] = None
-            ci_method = getattr(_config.reporting, "confidence_interval_method")
-            min_sample_size = _config.reporting.bootstrap_min_sample_size
-            if (
-                ci_method == "bootstrap"
-                and outputs_evaluated >= min_sample_size
-            ):
-                # Construct individual results post-hoc (order doesn't matter for bootstrap resampling)
-                binary_outcomes = [1] * fails + [0] * passes
-                try:
-                    se, sp = self.detector_metrics.get_detector_se_sp(detector)
-                    ci_result = calculate_bootstrap_ci(
-                        results=binary_outcomes, sensitivity=se, specificity=sp
-                    )
-                    if ci_result is not None:
-                        ci_lower, ci_upper = ci_result
-                    else:
-                        logging.warning(
-                            "CI calculation returned None for %s (probe: %s, n=%d, Se=%.3f, Sp=%.3f)",
-                            detector,
-                            self.probename,
-                            outputs_evaluated,
-                            se,
-                            sp,
-                        )
-                except ValueError as e:
-                    logging.error(
-                        "CI calculation failed for %s (probe: %s, n=%d):",
-                        detector,
-                        self.probename,
-                        outputs_evaluated,
-                        exc_info=e,
-                    )
-            elif ci_method == "bootstrap" and outputs_evaluated > 0:
-                if hasattr(_config.system, "verbose") and _config.system.verbose > 0:
-                    logging.debug(
-                        "Skipping CI calculation for %s (probe: %s): sample size n=%d < %d",
-                        detector,
-                        self.probename,
-                        outputs_evaluated,
-                        min_sample_size,
-                    )
-
-            if _config.system.narrow_output:
-                print_func = self.print_results_narrow
-            else:
-                print_func = self.print_results_wide
-            print_func(
-                detector, passes, outputs_evaluated, messages, ci_lower, ci_upper
+            inference_counts["total_evaluated"] += len(attempt.outputs)
+            inference_counts["nones"] += len(attempt.outputs) - sum(
+                1 for _ in filter(lambda v: v is not None, attempt.outputs)
             )
-
-            # Build eval record
-            eval_record = {
-                "entry_type": "eval",
-                "probe": self.probename,
-                "detector": detector,
-                "passed": passes,
-                "fails": fails,
-                "nones": nones,
-                "total_evaluated": outputs_evaluated,
-                "total_processed": outputs_processed,
-            }
-
-            # Add CI fields if calculation succeeded
-            if ci_lower is not None and ci_upper is not None:
-                eval_record["confidence_method"] = "bootstrap"
-                eval_record["confidence"] = (
-                    _config.reporting.bootstrap_confidence_level
+            attempt_detectors = set(attempt.detector_results.keys())
+            if not attempt_detectors:
+                logging.warning(
+                    "probe %s attempt %s seq %s intent %s had no assigned detectors"
+                    % (
+                        self.probename,
+                        attempt.uuid,
+                        attempt.seq,
+                        attempt.intent,
+                    )
                 )
-                eval_record["confidence_upper"] = ci_upper / 100
-                eval_record["confidence_lower"] = ci_lower / 100
 
-            _config.transient.reportfile.write(
-                json.dumps(eval_record, ensure_ascii=False) + "\n"
-            )
+            detectors_to_eval.update(attempt_detectors)
+            for attempt_detector in attempt_detectors:
+                detector_to_attempt_ids[attempt_detector].append(idx)
+
+        for detector_to_eval in sorted(detectors_to_eval):
+            attempt_subset = [
+                attempts[i] for i in detector_to_attempt_ids[detector_to_eval]
+            ]
+            eval_summary = self._evaluate_one_detector(attempt_subset, detector_to_eval)
+            detection_counts["detectors"].add(detector_to_eval)
+            for k, v in eval_summary.items():
+                if k in detection_counts:
+                    detection_counts[k] += v
+
+        detection_counts["detectors"] = list(
+            detection_counts["detectors"]
+        )  # cast to list for serialization
+        probe_record = {
+            "entry_type": "probe_summary",
+            "probe": self.probename,
+            "inference_counts": inference_counts,
+            "detection_counts": detection_counts,
+        }
+
+        _config.transient.reportfile.write(
+            json.dumps(probe_record, ensure_ascii=False) + "\n"
+        )
+
+        probe_record.pop("entry_type")
+        probe_record.pop("probe")
+
+        return probe_record
 
     def get_z_rating(self, probe_name, detector_name, asr_pct) -> str:
         probe_module, probe_classname = probe_name.split(".")
@@ -233,9 +352,22 @@ class Evaluator:
         zrating_symbol = ""
         if zscore is not None:
             zrating_symbol = self.SYMBOL_SET[
-                garak.analyze.score_to_defcon(zscore, garak.analyze.RELATIVE_DEFCON_BOUNDS)
+                garak.analyze.score_to_defcon(
+                    zscore, garak.analyze.RELATIVE_DEFCON_BOUNDS
+                )
             ]
         return zscore, zrating_symbol
+
+    @staticmethod
+    def _format_hit_at_k(hit_at_k_scores: Optional[dict]) -> str:
+        """Render hit@k scores as a compact ``hit@1: 20.00%`` suffix."""
+        if not hit_at_k_scores:
+            return ""
+        parts = [
+            f"hit@{k}: {scores['score'] * 100:.2f}%"
+            for k, scores in hit_at_k_scores.items()
+        ]
+        return "  " + "  ".join(parts)
 
     def print_results_wide(
         self,
@@ -245,6 +377,7 @@ class Evaluator:
         messages: Optional[List] = None,
         ci_lower: Optional[float] = None,
         ci_upper: Optional[float] = None,
+        hit_at_k_scores: Optional[dict] = None,
     ):
         """Print the evaluator's summary"""
 
@@ -294,7 +427,7 @@ class Evaluator:
                     ci_text = f" [{ci_lower:.2f}%, {ci_upper:.2f}%]"
 
             print(
-                f"   ({Fore.LIGHTRED_EX}attack success rate:{Style.RESET_ALL} {failrate:6.2f}%{ci_text})",
+                f"   ({Fore.LIGHTRED_EX}attack success rate:{Style.RESET_ALL} {failrate:6.2f}%{ci_text}{self._format_hit_at_k(hit_at_k_scores)})",
                 end="",
             )
         if _config.system.show_z and zscore is not None:
@@ -318,6 +451,7 @@ class Evaluator:
         messages: Optional[List] = None,
         ci_lower: Optional[float] = None,
         ci_upper: Optional[float] = None,
+        hit_at_k_scores: Optional[dict] = None,
     ):
         """Print the evaluator's summary"""
 
@@ -370,7 +504,7 @@ class Evaluator:
                     ci_text = f" [{ci_lower:.2f}%, {ci_upper:.2f}%]"
 
             print(
-                f"    {Fore.LIGHTRED_EX}attack success rate:{Style.RESET_ALL} {failrate:6.2f}%{ci_text}",
+                f"    {Fore.LIGHTRED_EX}attack success rate:{Style.RESET_ALL} {failrate:6.2f}%{ci_text}{self._format_hit_at_k(hit_at_k_scores)}",
                 end="",
             )
         if failrate > 0.0 and _config.system.show_z and zscore is not None:

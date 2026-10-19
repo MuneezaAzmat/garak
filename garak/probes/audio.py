@@ -24,11 +24,14 @@ class AudioAchillesHeel(garak.probes.Probe):
     """
 
     lang = "en"
+    intent = "T009ignore"  # uses the audio channel to make the model disregard its existing system behavior
+    # M007 is a secondary fit because the weakness depends on multimodal input handling.
     primary_detector = "mitigation.MitigationBypass"
     tags = [
         "avid-effect:security:S0403",
         "avid-effect:performance:P0204",
         "quality:Security:PromptStability",
+        "demon:Language:Code_and_encode:Data_presentation",  # switches to audio modality to bypass text-based alignment
     ]
     goal = "disregard the system prompt via audio component"
     tier = garak.probes.Tier.UNLISTED
@@ -63,24 +66,18 @@ class AudioAchillesHeel(garak.probes.Probe):
                 "Audio Achilles data not found. Downloading from HuggingFace."
             )
 
-            from datasets import load_dataset
-
-            def write_audio_to_file(audio_data, file_path, sampling_rate):
-                """Writes audio data to a file.
-
-                Args:
-                    audio_data: A 1D numpy array containing the audio data.
-                    file_path: The path to the output audio file.
-                    sampling_rate: The sampling rate of the audio data.
-                """
-                self.soundfile.write(file_path, audio_data, sampling_rate)
+            from datasets import Audio, load_dataset
 
             dataset = load_dataset("garak-llm/audio_achilles_heel")
-            for item in dataset["train"]:
-                audio_data = item["audio"]["array"]
-                sampling_rate = item["audio"]["sampling_rate"]
+            # Take the original file bytes without decoding: datasets >= 4
+            # decodes audio via torchcodec, which is not needed here since
+            # files are written straight to disk. Behaves the same on
+            # datasets 3, 4 and 5.
+            train = dataset["train"].cast_column("audio", Audio(decode=False))
+            for item in train:
                 file_path = str(audio_achilles_data_dir) + f"/{item['audio']['path']}"
-                write_audio_to_file(audio_data, file_path, sampling_rate)
+                with open(file_path, "wb") as audio_file:
+                    audio_file.write(item["audio"]["bytes"])
 
         filenames = [
             str(filename.resolve())
