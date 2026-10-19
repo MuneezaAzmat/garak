@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentbreaker-eval"
+version = "0.1.0"
+description = "Ledger-verified AgentBreaker evaluation on MiniKlarna"
+requires-python = ">=3.11,<3.14"
+dependencies = ["PyYAML>=6,<7", "openai>=2,<3", "backoff>=2,<3", "colorama>=0.4", "tqdm>=4", "xdg-base-dirs>=6", "langdetect==1.0.9", "nltk>=3.10.3", "pillow>=12.3", "numpy>=2", "requests>=2", "huggingface-hub>=1"]
+
+[project.optional-dependencies]
+test = ["pytest>=9"]
+
+[project.scripts]
+agentbreaker-eval = "agentbreaker_eval.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "vendor/mini-agents/src"]

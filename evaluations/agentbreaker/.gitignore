@@ -1,0 +1,22 @@
+.venv/
+.venv-ogx/
+.venv-asago/
+vendor/
+.env
+.env.*
+!.env.example
+.cache/
+.superpowers/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+runs/
+
+# Local analysis and presentation artifacts
+outputs/
+presentations/
+research/
+.DS_Store
+.chart-data-*/
+.codex-build/

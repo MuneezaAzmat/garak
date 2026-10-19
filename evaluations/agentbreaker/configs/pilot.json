@@ -1,0 +1,20 @@
+{
+  "provider": {
+    "base_url": "https://llm.example.com/v1",
+    "model": "gemma-4-26b",
+    "api_key_env": "LITELLM_API_KEY",
+    "timeout": 60,
+    "max_tokens": 1536,
+    "temperature": 0.0,
+    "max_tool_turns": 6,
+    "max_retries": 2
+  },
+  "versions": ["0.16.0", "0.17.0"],
+  "modes": ["safe", "unsafe"],
+  "repeats": 1,
+  "max_attempts_per_tool": 2,
+  "max_target_requests": 8,
+  "campaign_timeout_seconds": 1800,
+  "historical_version_known": false,
+  "seed": 42
+}

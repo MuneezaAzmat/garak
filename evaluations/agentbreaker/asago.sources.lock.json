@@ -1,0 +1,62 @@
+{
+  "asago-artifact-generator": {
+    "repository": "https://github.com/asago-ai/asago-artifact-generator",
+    "url": "https://api.github.com/repos/asago-ai/asago-artifact-generator/tarball/336bd2a04dd4d34e13b77f7f7932f66bf428fd6e",
+    "ref": "336bd2a04dd4d34e13b77f7f7932f66bf428fd6e",
+    "commit": "336bd2a04dd4d34e13b77f7f7932f66bf428fd6e",
+    "commit_provenance": "Git archive PAX comment",
+    "archive_root": "asago-ai-asago-artifact-generator-336bd2a",
+    "archive_sha256": "413da0bca47684fd41ff1e6d9495547bd7ef48e4ee9a2743e2f41262b6371b03",
+    "tree_sha256": "2ee195c792917eb324f0348a705b715c295a43bb604a59fe9c38c35c9d747d09",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "file_count": 85
+  },
+  "asago-scenario-generator": {
+    "repository": "https://github.com/asago-ai/asago-scenario-generator",
+    "url": "https://api.github.com/repos/asago-ai/asago-scenario-generator/tarball/c6a7355c2a3f18342d484f2f62901962b5e3baef",
+    "ref": "c6a7355c2a3f18342d484f2f62901962b5e3baef",
+    "commit": "c6a7355c2a3f18342d484f2f62901962b5e3baef",
+    "commit_provenance": "Git archive PAX comment",
+    "archive_root": "asago-ai-asago-scenario-generator-c6a7355",
+    "archive_sha256": "d46797fc1f6684e01c72e47cba335c7195b86fb2928335bae789c6c1ddec8545",
+    "tree_sha256": "338b249343097dbb368b11d49c0d0e95ae17727dabee8ad6856e6aa0005ace27",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "file_count": 1105
+  },
+  "asago-policy-mapper": {
+    "repository": "https://github.com/asago-ai/asago-policy-mapper",
+    "url": "https://api.github.com/repos/asago-ai/asago-policy-mapper/tarball/e39272d1f0bffe7228307f67ac4d5e01fcb7f43d",
+    "ref": "e39272d1f0bffe7228307f67ac4d5e01fcb7f43d",
+    "commit": "e39272d1f0bffe7228307f67ac4d5e01fcb7f43d",
+    "commit_provenance": "Git archive PAX comment",
+    "archive_root": "asago-ai-asago-policy-mapper-e39272d",
+    "archive_sha256": "1e4e606b82a707a30a51a9b3b692d4ff893ccae81e2427243e23bd35987e3315",
+    "tree_sha256": "e6fe1e45f1b3987f96dfcb31b3d0c63341e4c784064edb754c60bb54ab042d0a",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "file_count": 208
+  },
+  "garak-asago": {
+    "repository": "https://github.com/trustyai-explainability/garak",
+    "url": "https://api.github.com/repos/trustyai-explainability/garak/tarball/e44e6370175bde93d9564854961b281de0c578bf",
+    "ref": "e44e6370175bde93d9564854961b281de0c578bf",
+    "commit": "e44e6370175bde93d9564854961b281de0c578bf",
+    "commit_provenance": "Git archive PAX comment",
+    "archive_root": "trustyai-explainability-garak-e44e637",
+    "archive_sha256": "f3e1dc73f6f9ade4df7b96ee1eb1df22023cbe10bb0f3dc602f0b9a395de242f",
+    "tree_sha256": "42cd4514bc47c315c71aabd398f1cbd804fc58ff33968175f5c0813ebb36127e",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "file_count": 897
+  },
+  "ai-atlas-nexus": {
+    "repository": "https://github.com/IBM/ai-atlas-nexus",
+    "url": "https://api.github.com/repos/IBM/ai-atlas-nexus/tarball/a8af9d79b72fe12c165bd51f855bc888d9acaeb4",
+    "ref": "a8af9d79b72fe12c165bd51f855bc888d9acaeb4",
+    "commit": "a8af9d79b72fe12c165bd51f855bc888d9acaeb4",
+    "commit_provenance": "Git archive PAX comment; revision from asago-policy-mapper uv.lock",
+    "archive_root": "IBM-ai-atlas-nexus-a8af9d7",
+    "archive_sha256": "0632cf2abdaab9ebdb965927d280072cdeb812c15ce89f81ec576e0b93542cd1",
+    "tree_sha256": "c5669da5336a1d81e78636a5e9c8e1018b0982860490f1e8cdb0b88d773d1764",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "file_count": 563
+  }
+}

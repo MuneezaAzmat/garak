@@ -1,0 +1,58 @@
+{
+  "provider": {
+    "base_url": "http://127.0.0.1:11434/v1",
+    "model": "qwen2.5:14b",
+    "api_key_env": "OLLAMA_API_KEY",
+    "require_api_key": false,
+    "timeout": 180,
+    "max_tokens": 1536,
+    "temperature": 0.0,
+    "max_tool_turns": 6,
+    "max_retries": 1,
+    "native_timeout": 900,
+    "target_backend": "ogx",
+    "ogx_base_url": "http://127.0.0.1:8321/v1",
+    "ogx_model": "openai/qwen2.5:14b",
+    "ogx_timeout": 900,
+    "ogx_max_tool_calls": 6,
+    "mcp_startup_timeout": 30,
+    "evidence_dir": "runs/ogx-qwen38-localqwen-budget50-discover/native-target"
+  },
+  "attacker": {
+    "base_url": "http://127.0.0.1:18790/v1",
+    "model": "qwen-3.8-27b",
+    "api_key_env": "LITELLM_API_KEY",
+    "require_api_key": false,
+    "timeout": 180,
+    "max_tokens": 8192,
+    "native_timeout": 300,
+    "extra_params": {
+      "extra_body": {
+        "chat_template_kwargs": {"enable_thinking": false}
+      }
+    }
+  },
+  "judge": {
+    "base_url": "http://127.0.0.1:18790/v1",
+    "model": "qwen-3.8-27b",
+    "api_key_env": "LITELLM_API_KEY",
+    "require_api_key": false,
+    "timeout": 180,
+    "native_timeout": 300,
+    "extra_params": {
+      "extra_body": {
+        "chat_template_kwargs": {"enable_thinking": false}
+      }
+    }
+  },
+  "versions": ["0.17.0"],
+  "modes": ["unsafe"],
+  "repeats": 1,
+  "max_attempts_per_tool": 2,
+  "max_target_requests": 50,
+  "campaign_timeout_seconds": 18000,
+  "historical_version_known": false,
+  "seed": 42,
+  "target_timeout": 1000,
+  "agent_yaml": "discover"
+}

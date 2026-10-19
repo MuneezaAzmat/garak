@@ -1,0 +1,41 @@
+{
+  "mini-agents": {
+    "repository": "https://github.com/hjrnunes/mini-agents",
+    "url": "https://api.github.com/repos/hjrnunes/mini-agents/tarball/4daf9abcf5a894e3e5eb7ba5de2f7ccbafe462c3",
+    "ref": "4daf9abcf5a894e3e5eb7ba5de2f7ccbafe462c3",
+    "commit": "4daf9abcf5a894e3e5eb7ba5de2f7ccbafe462c3",
+    "commit_provenance": "Git archive PAX comment in SHA256-pinned archive",
+    "archive_sha256": "726dcbeb215a541fcfe2b79f7bc9efaaecbc8660ab7fb87a843b1bafe0789a5c",
+    "archive_root": "hjrnunes-mini-agents-4daf9ab",
+    "tree_sha256": "d98213009a0ea1044118de4d15566dab6686b9837ddff1176e00d73cecfed7b4",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "tree_hash_excludes": ["__pycache__", "*.pyc", "*.pyo"],
+    "file_count": 35
+  },
+  "garak-0.16.0": {
+    "repository": "https://github.com/NVIDIA/garak",
+    "url": "https://api.github.com/repos/NVIDIA/garak/tarball/v0.16.0",
+    "ref": "v0.16.0",
+    "commit": "dbe4515d12664f2e34ac2cea295f055c22fe82b4",
+    "commit_provenance": "Git archive PAX comment in SHA256-pinned archive",
+    "archive_sha256": "f5ebba55bac14d95570b0f9d52a43127ba5fc8d8b2b3fd793e3d9b10a10fffd4",
+    "archive_root": "NVIDIA-garak-dbe4515",
+    "tree_sha256": "e56ad785d3ee078d28bcc437850945d9328c60c90439ea5ab1026cb797294825",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "tree_hash_excludes": ["__pycache__", "*.pyc", "*.pyo"],
+    "file_count": 867
+  },
+  "garak-0.17.0": {
+    "repository": "https://github.com/NVIDIA/garak",
+    "url": "https://api.github.com/repos/NVIDIA/garak/tarball/v0.17.0",
+    "ref": "v0.17.0",
+    "commit": "93aa9cdec309ec4170559676f1826ea2a679920c",
+    "commit_provenance": "Git archive PAX comment in SHA256-pinned archive",
+    "archive_sha256": "6052d243a94d534de2951de36f5488e930248eb89e2323d90b62b207cb204b8a",
+    "archive_root": "NVIDIA-garak-93aa9cd",
+    "tree_sha256": "c70bc0794797f068a988b02f02795ae78e39b5ce77f257b055b43166e777ccfc",
+    "tree_hash_algorithm": "sha256(sorted-json-[posix-path,file-sha256])-v1",
+    "tree_hash_excludes": ["__pycache__", "*.pyc", "*.pyo"],
+    "file_count": 874
+  }
+}
