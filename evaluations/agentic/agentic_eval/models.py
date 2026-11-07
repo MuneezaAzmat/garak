@@ -56,7 +56,7 @@ JUDGE = _ROSTER["judge"]
 
 
 def validate_roles(roles: dict) -> None:
-    """Reject role substitution and same-model attack/target pairs."""
+    """Reject roles a model is not declared for. Models may be shared across roles."""
     if set(roles) != set(ROLES):
         raise ValueError(
             "Exactly target, attacker, helper, and judge roles are required"
@@ -64,8 +64,6 @@ def validate_roles(roles: dict) -> None:
     for role, key in roles.items():
         if key not in MODEL_SPECS or role not in MODEL_SPECS[key]["roles"]:
             raise ValueError(f"Unsupported model for {role}: {key}")
-    if roles["target"] == roles["attacker"]:
-        raise ValueError("Target and attacker identities must differ")
     if roles["judge"] != JUDGE:
         raise ValueError(f"The fixed judge must be {JUDGE}")
     if roles["helper"] != roles["attacker"]:

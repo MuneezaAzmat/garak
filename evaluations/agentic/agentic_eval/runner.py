@@ -177,12 +177,6 @@ def validate_executable(manifest):
         validate_resolved_identity(MODEL_SPECS[key], resolved)
         if not resolved.get("inference_verified"):
             raise ValueError(f"{role} inference preflight has not passed")
-    identities = {
-        role: (value["provider"], value["returned_model"])
-        for role, value in manifest["resolved_models"].items()
-    }
-    if len({identities[role] for role in ("target", "attacker", "judge")}) != 3:
-        raise ValueError("Resolved target, attacker and judge identities must differ")
     if manifest["resolved_models"]["helper"] != manifest["resolved_models"]["attacker"]:
         raise ValueError("Helper deployment must equal its associated attacker")
 

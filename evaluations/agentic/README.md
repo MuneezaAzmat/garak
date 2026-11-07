@@ -6,7 +6,7 @@ Runs Garak's **AgentBreaker** and **ToolChain** probes against three mini-agents
 
 - A **git clone** of this repository, with history. 
 - [uv](https://docs.astral.sh/uv/). It installs the locked Python 3.12 environment.
-- Three OpenAI-compatible endpoints (`/v1/models` and `/v1/chat/completions`): an **attacker**, a **target** and a **judge**. They can be hosted APIs, vLLM, NIM or Ollama. The target endpoint must support tool calling. The three roles must resolve to different models.
+- Three OpenAI-compatible endpoints (`/v1/models` and `/v1/chat/completions`): an **attacker**, a **target** and a **judge**. They can be hosted APIs, vLLM, NIM or Ollama. The target endpoint must support tool calling. Roles may share an endpoint and model.
 
 ## Setup
 
