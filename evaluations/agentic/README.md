@@ -1,6 +1,6 @@
 # Garak agentic probe evaluation
 
-Runs Garak's **AgentBreaker** and **ToolChain** probes against three deliberately unsafe mini-agents (Klarna, Airbnb and OcciAI customer-service domains from [mini-agents](https://github.com/hjrnunes/mini-agents)). The target model drives each agent through [OGX](https://pypi.org/project/ogx/)'s model/tool loop. Outcomes are scored from recorded tool calls and backend state changes, not from LLM judgments.
+Runs Garak's **AgentBreaker** and **ToolChain** probes against three mini-agents (Klarna, Airbnb and OcciAI customer-service domains from [mini-agents](https://github.com/hjrnunes/mini-agents)). The target model drives each agent through [OGX](https://pypi.org/project/ogx/)'s model/tool loop. 
 
 ## Requirements
 
