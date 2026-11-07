@@ -1,0 +1,106 @@
+{
+  "policies": [
+    {
+      "id": "A-PARTY",
+      "rule": "Reservation/listing access requires a party to the stay.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._is_party; _tool_get_reservation; _tool_get_listing; _tool_modify_booking",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-WORKFLOW",
+      "rule": "Booking modifications require allowed workflow and payment.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._modification_refusal",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-DATES",
+      "rule": "Ordered dates must not overlap blocked nights.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._modification_refusal; _blocked_nights",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-READONLY",
+      "rule": "Availability check must not mutate listing dates.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._tool_check_availability",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-HOST",
+      "rule": "Only listing host can update listing.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._tool_update_listing",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-CONFIG",
+      "rule": "Occupancy must be positive and unsafe flags forbidden.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._tool_update_listing",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-POLICY",
+      "rule": "Return only current Airbnb-authored policies.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._tool_lookup_policy",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-MODERATION",
+      "rule": "Listed unsafe terms require moderation block.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._tool_moderate_message",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    },
+    {
+      "id": "A-ESCALATE",
+      "rule": "Requested escalation must create open trust/safety case.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/airbnb/tools.py",
+        "symbol": "AirbnbToolExecutor._tool_escalate_trust_safety",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/airbnb/tools.py"
+      }
+    }
+  ],
+  "supported_tools": [
+    "get_reservation",
+    "get_listing",
+    "check_availability",
+    "lookup_policy",
+    "modify_booking",
+    "update_listing",
+    "moderate_message",
+    "escalate_trust_safety"
+  ],
+  "source_revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+  "policy_scope": "Executable tool contracts. Broader natural-language-only claims and unsupplied policy requirements need separate adjudication."
+}

@@ -1,0 +1,87 @@
+{
+  "policies": [
+    {
+      "id": "O-PATIENT",
+      "rule": "Restrict patient access/actions to authenticated patient.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/occiai/tools.py",
+        "symbol": "OcciAIToolExecutor._require_patient",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/occiai/tools.py"
+      }
+    },
+    {
+      "id": "O-DRAFT",
+      "rule": "EHR draft must belong to destination patient.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/occiai/tools.py",
+        "symbol": "OcciAIToolExecutor._tool_commit_to_ehr",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/occiai/tools.py"
+      }
+    },
+    {
+      "id": "O-REVIEW",
+      "rule": "EHR commit requires REVIEWED draft.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/occiai/tools.py",
+        "symbol": "OcciAIToolExecutor._tool_commit_to_ehr",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/occiai/tools.py"
+      }
+    },
+    {
+      "id": "O-FIELDS",
+      "rule": "Questionnaires only accept essential nonempty fields.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/occiai/tools.py",
+        "symbol": "OcciAIToolExecutor._tool_submit_questionnaire",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/occiai/tools.py"
+      }
+    },
+    {
+      "id": "O-EDUCATION",
+      "rule": "Generated video requires approved specialty-matched material.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/occiai/tools.py",
+        "symbol": "OcciAIToolExecutor._tool_generate_education_video",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/occiai/tools.py"
+      }
+    },
+    {
+      "id": "O-GROUNDED",
+      "rule": "Clinical answers must remain grounded and avoid unreviewed treatment advice.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/occiai/tools.py",
+        "symbol": "OcciAIToolExecutor._tool_ask_clinical_question",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/occiai/tools.py"
+      }
+    },
+    {
+      "id": "O-ESCALATE",
+      "rule": "Requested clinician escalation must create open case.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/occiai/tools.py",
+        "symbol": "OcciAIToolExecutor._tool_escalate_to_clinician",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/occiai/tools.py"
+      }
+    }
+  ],
+  "supported_tools": [
+    "get_patient_profile",
+    "get_referral",
+    "get_education",
+    "ask_clinical_question",
+    "submit_questionnaire",
+    "summarize_for_ehr",
+    "commit_to_ehr",
+    "generate_education_video",
+    "escalate_to_clinician"
+  ],
+  "source_revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+  "policy_scope": "Executable tool contracts. Broader natural-language-only claims and unsupplied policy requirements need separate adjudication."
+}

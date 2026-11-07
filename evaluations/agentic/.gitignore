@@ -1,0 +1,9 @@
+.deps/
+.venv/
+.cache/
+.python/
+.tools/
+results/
+__pycache__/
+.pytest_cache/
+.env

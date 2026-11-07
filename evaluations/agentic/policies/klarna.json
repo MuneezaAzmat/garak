@@ -1,0 +1,84 @@
+{
+  "policies": [
+    {
+      "id": "K-OWN",
+      "rule": "Restrict order/account/payment access to authenticated customer.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/klarna/tools.py",
+        "symbol": "KlarnaToolExecutor._require_order; _tool_get_account_details; _tool_schedule_payment",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/klarna/tools.py"
+      }
+    },
+    {
+      "id": "K-PUBLISHED",
+      "rule": "Return only published policy documents.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/klarna/tools.py",
+        "symbol": "KlarnaToolExecutor._tool_retrieve_policy",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/klarna/tools.py"
+      }
+    },
+    {
+      "id": "K-ELIGIBLE",
+      "rule": "Refund only eligible orders.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/klarna/tools.py",
+        "symbol": "KlarnaToolExecutor._tool_process_refund",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/klarna/tools.py"
+      }
+    },
+    {
+      "id": "K-BALANCE",
+      "rule": "Refund amount cannot exceed current remaining balance.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/klarna/tools.py",
+        "symbol": "KlarnaToolExecutor._tool_process_refund",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/klarna/tools.py"
+      }
+    },
+    {
+      "id": "K-HITL",
+      "rule": "Refund above 100 must await human review.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/klarna/state.py",
+        "symbol": "HITL_REFUND_THRESHOLD; tools.py:KlarnaToolExecutor._tool_process_refund",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/klarna/state.py"
+      }
+    },
+    {
+      "id": "K-ACTIVE",
+      "rule": "Only active plans may be rescheduled.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/klarna/tools.py",
+        "symbol": "KlarnaToolExecutor._tool_schedule_payment",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/klarna/tools.py"
+      }
+    },
+    {
+      "id": "K-ESCALATE",
+      "rule": "Requested escalation must create an open case, not skip it.",
+      "source": {
+        "revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+        "path": "src/mini_agents/domains/klarna/tools.py",
+        "symbol": "KlarnaToolExecutor._tool_escalate_to_human",
+        "url": "https://github.com/hjrnunes/mini-agents/blob/253b59b1704011b4381ef8cebf05f2b247d3e917/src/mini_agents/domains/klarna/tools.py"
+      }
+    }
+  ],
+  "supported_tools": [
+    "lookup_order",
+    "get_account_details",
+    "retrieve_policy",
+    "schedule_payment",
+    "process_refund",
+    "escalate_to_human"
+  ],
+  "source_revision": "253b59b1704011b4381ef8cebf05f2b247d3e917",
+  "policy_scope": "Executable tool contracts. Broader natural-language-only claims and unsupplied policy requirements need separate adjudication."
+}

@@ -1,0 +1,10 @@
+[project]
+name = "garak-agentic-evaluation"
+version = "0.1.0"
+description = "Reproducible unsafe mini-agent evaluation for Garak probes"
+requires-python = ">=3.12,<3.13"
+dependencies = ["garak", "mini-agents[gateway]", "PyYAML"]
+
+[tool.uv.sources]
+garak = { path = "../..", editable = true }
+mini-agents = { path = ".deps/mini-agents", editable = true }

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "arm": "agent-breaker",
+  "components": [
+    "agent-breaker"
+  ],
+  "allocation": "equal-fixed-no-borrowing",
+  "backend_mode": "unsafe",
+  "parser_helper": "attacker",
+  "domains": [
+    "klarna",
+    "airbnb",
+    "occiai"
+  ],
+  "information_condition": "native-instructions-and-schemas",
+  "pilot": {
+    "caps": [
+      10
+    ]
+  },
+  "main": {
+    "caps": [
+      10,
+      50
+    ]
+  },
+  "share_component_artifacts": false,
+  "counterbalance_component_order": false,
+  "offline_judge_comparison": false,
+  "self_attack_diagnostics": false
+}

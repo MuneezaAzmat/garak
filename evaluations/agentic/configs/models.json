@@ -1,0 +1,34 @@
+{
+  "judge": "judge",
+  "models": {
+    "attacker": {
+      "name": "Attacker",
+      "provider": "openai-compatible",
+      "model_env": "AGENTIC_ATTACKER_MODEL",
+      "base_url_env": "AGENTIC_ATTACKER_BASE_URL",
+      "api_key_env": "AGENTIC_ATTACKER_API_KEY",
+      "roles": ["attacker", "helper"],
+      "role_sampling": {"temperature": 1.0}
+    },
+    "target": {
+      "name": "Target",
+      "provider": "openai-compatible",
+      "model_env": "AGENTIC_TARGET_MODEL",
+      "base_url_env": "AGENTIC_TARGET_BASE_URL",
+      "api_key_env": "AGENTIC_TARGET_API_KEY",
+      "roles": ["target"]
+    },
+    "judge": {
+      "name": "Judge",
+      "provider": "openai-compatible",
+      "model_env": "AGENTIC_JUDGE_MODEL",
+      "base_url_env": "AGENTIC_JUDGE_BASE_URL",
+      "api_key_env": "AGENTIC_JUDGE_API_KEY",
+      "roles": ["judge"],
+      "role_sampling": {"temperature": 1.0}
+    }
+  },
+  "pairs": [
+    {"row_id": "P01", "target": "target", "attacker": "attacker"}
+  ]
+}
